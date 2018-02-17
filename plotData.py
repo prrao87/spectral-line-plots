@@ -15,6 +15,11 @@ import os
 import re
 import time
 
+# Inputs
+filepath = "ExampleData"
+out_extension = ".out"   # Extension of out files we want to read data from
+plotname = "convergencePlot.png"    # name of output Plot file
+
 def getFiles(ext, filepath):
     """
     Get a list of all files of a specified extension in the local directory.
@@ -66,6 +71,7 @@ def getHeader(filepath, file):
     with open(filepath + "/" + file) as f:    # Open file
         for line in f:       # Iterate through lines of file
             pattern = expression.match(line) # Match the pattern "AnyText" "AnyText"
+
             if pattern:     # Only store headers if the pattern is matched
                 header = [pattern.groups()[0], pattern.groups()[1]]   # Store the first and second terms of header
                 print("Identified X/Y axes of the .out files as '%s' and '%s'" % (pattern.groups()[0], pattern.groups()[1]))
@@ -76,9 +82,6 @@ def getHeader(filepath, file):
                     flag = 1
                 else:
                     flag = 2
-            else:
-                flag = -1
-                header = ["Unknown", "Unknown"]
 
     return flag, header
 
@@ -95,9 +98,9 @@ def plotData(filepath, outFiles, out_extension, plotname, flag, header):
     with open("TableData.dat", "w") as f:
         for index, inputfile in enumerate(outFiles):
             output = readFile(filepath + "/" + inputfile, lineskip=2) # readFile(filename, lineskip): lineskip MUST be an integer
+            output[1] = [i-273.15 for i in output[1]]
 
             if flag == 1:   # Convert temperature column to deg Celsius (we know the input was in Kelvin)
-                output[1] = [i-273.15 for i in output[1]]
                 title_field = "Temperature history in $^\circ$C"
             else: title_field = "Solution Variable History in SI Units"
 
@@ -122,10 +125,6 @@ def plotData(filepath, outFiles, out_extension, plotname, flag, header):
 if __name__ == '__main__':
 
     a = time.time() # Start timer
-
-    filepath = "ExampleData/"
-    out_extension = ".out"   # Extension of out files we want to read data from
-    plotname = "convergencePlot.png"    # name of output Plot file
 
     outFiles = getFiles(out_extension, filepath)   # Get list of out files in current directory
     outFiles = sortFiles(outFiles)       # natural-sort file names alphabetically and store that in a list
