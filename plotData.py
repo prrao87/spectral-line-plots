@@ -66,6 +66,7 @@ def getHeader(filepath, file):
     Get header information from the tabular .out file without user interaction.
     """
     flag = 0
+    header = ["Unknown", "Unknown"] # Failsafe in case we don't match pattern
     expression = re.compile(r'"(.*?)"\s?"(.*?)"') # Pre-compile regular expression before using in loop
 
     with open(filepath + "/" + file) as f:    # Open file
